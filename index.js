@@ -35,12 +35,15 @@ app.post('/users', async (req, res) => {
 app.get('/users',async(req,res)=>{
 try {
   const {identity,password}=req.body;
-   const Query="SELECT first_name, last_name\
+   const Query="SELECT COUNT(user_id) \
    FROM users \
-   WHERE user_id=$1  AND password=$2";
+   WHERE user_id=$1  AND password=$2";   //user_id or phone  number jekono ekta dilei hobee
+                                           //emn korte chassilam kintu query partesina
    const oldUser=await pool.query(Query,[identity,password]);
-   res.json(oldUser.rows[0]);
-   //console.log(oldUser);
+  // if(oldUser.rowCount>0) //allow access
+  // else{
+      //do not allow access 
+  //  }
 
 } catch (error) {
 
@@ -48,11 +51,7 @@ try {
   res.status(500).send('Something went wrong');
 }
 
-
-
 });
-
-//get all user
 
 //update a user
 
