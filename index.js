@@ -37,12 +37,12 @@ try {
   const {identity,password}=req.body;
    const Query="SELECT COUNT(user_id) \
    FROM users \
-   WHERE (COALESCE (phone_number=$1,0) OR (COALESCE (phone_number=$1,0)))   AND  password=crypt($2,password)";   //user_id or phone  number jekono ekta dilei hobee
+   WHERE (phone_number=$1 OR user_id ::VARCHAR=$1)   AND  password_hash=crypt($2,password_hash)";   //user_id or phone  number jekono ekta dilei hobee
                                            //emn korte chassilam kintu query partesina
    const oldUser=await pool.query(Query,[identity,password]);
-   if(oldUser.rowCount>0) console.log("Login successful\n");
+   if(oldUser.rowCount>0) res.send("login successful");
    else{
-            console.log("Login denied , please try again with correct credentials");
+      res.send("Login denied , please try again with correct credentials");
     }
 
 } catch (error) {
