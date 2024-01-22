@@ -17,8 +17,8 @@ app.post('/users', async (req, res) => {
   try {
     // Get the user data from the request body
     const { first_name, middle_name, last_name, phone_number, password } = req.body;
-    const Query = "INSERT INTO users(first_name, middle_name, last_name, phone_number, password) \
-     VALUES ($1,$2,$3,$4,$5) RETURNING *";
+    const Query = "INSERT INTO users(first_name, middle_name, last_name, phone_number, password_hash) \
+     VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')))";
       
     // Execute the query with the user data as parameters
      const newUser=await pool.query(Query, [first_name, middle_name, last_name, phone_number, password]);
@@ -37,13 +37,13 @@ try {
   const {identity,password}=req.body;
    const Query="SELECT COUNT(user_id) \
    FROM users \
-   WHERE user_id=$1  AND password=$2";   //user_id or phone  number jekono ekta dilei hobee
+   WHERE (COALESCE (phone_number=$1,0) OR (COALESCE (phone_number=$1,0)))   AND  password=crypt($2,password)";   //user_id or phone  number jekono ekta dilei hobee
                                            //emn korte chassilam kintu query partesina
    const oldUser=await pool.query(Query,[identity,password]);
-  // if(oldUser.rowCount>0) //allow access
-  // else{
-      //do not allow access 
-  //  }
+   if(oldUser.rowCount>0) console.log("Login successful\n");
+   else{
+            console.log("Login denied , please try again with correct credentials");
+    }
 
 } catch (error) {
 
