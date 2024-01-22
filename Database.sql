@@ -7,12 +7,12 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE SEQUENCE users_user_id_seq START 1;
 -- Create the users table with hashed passwords
 CREATE TABLE users (
-    user_id INT DEFAULT nextval('users_user_id_seq') PRIMARY KEY,
+    user_id INT DEFAULT nextval('users_user_id_seq') UNIQUE PRIMARY KEY,
     first_Name VARCHAR(100) NOT NULL,
     middle_Name VARCHAR(100),
     last_Name VARCHAR(100) NOT NULL,
-    phone_Number VARCHAR(30),   
-    email VARCHAR(255),
+    phone_Number VARCHAR(30) UNIQUE,   
+    email VARCHAR(255) UNIQUE,
     password_hash VARCHAR(255),
      CHECK ((phone_number IS NOT NULL AND email IS NULL) OR (phone_number IS NULL AND email IS NOT NULL))
 );
@@ -27,7 +27,7 @@ CREATE TABLE user_phone_number (
     user_id INT,
     phone_number VARCHAR(30),
     PRIMARY KEY (user_id, phone_number),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)--not sure though
+    FOREIGN KEY (user_id , phone_Number) REFERENCES users(user_id,phone_number)--not sure though
 );
 
 --items table , user_id is used as foreign key
@@ -37,43 +37,42 @@ CREATE TABLE items (
     item_id INT  DEFAULT nextval('items_item_id_seq') PRIMARY KEY,
     user_id INT NOT NULL,
     category_id INT NOT NULL,
+    subcategory_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     image BLOB,  --it has to be made correct
-    price DECIMAL(10, 0),
+    price DECIMAL(10, 0) NOT NULL CHECK (price >= 0),
     status VARCHAR(50),
-    date_Posted TIMESTAMP,
+    date_Posted TIMESTAMP WITH TIMEZONE DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    FOREIGN KEY (category_id) REFERENCES categories(category_id),
 );
 SELECT setval('items_item_id_seq', COALESCE((SELECT MAX(item_id) FROM items), 1), false);
 
 --for category
-CREATE SEQUENCE categories_category_id_seq START 1;
-CREATE TABLE categories (
-    category_id INT DEFAULT nextval('categories_category_id_seq') PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL
-);
-SELECT setval('categories_category_id_seq', COALESCE((SELECT MAX(category_id) FROM categories), 1), false);
 
---for subcategory
-CREATE SEQUENCE subcategories_subcategory_id_seq START 1;
-CREATE TABLE subcategories (
-    subcategory_id INT DEFAULT nextval('subcategories_subcategory_id_seq') PRIMARY KEY,
-    category_id INT NOT NULL,
+CREATE TABLE categories (
+    category_id INT  PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
+);
+
+
+--for subcategory
+
+CREATE TABLE subcategories (
+    subcategory_id INT NOT NULL,
+    category_id INT PRIMARY KEY,
     FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );
-SELECT setval('subcategories_subcategory_id_seq', COALESCE((SELECT MAX(subcategory_id) FROM subcategories), 1), false);
-
 
 --for discount
 CREATE SEQUENCE discounts_discount_id_seq START 1;
 CREATE TABLE discounts (
     discount_id INT DEFAULT nextval('discounts_discount_id_seq') PRIMARY KEY,
     discount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    duration INT NOT NULL CHECK (duration >= 0)
 );
 SELECT setval('discounts_discount_id_seq', COALESCE((SELECT MAX(discount_id) FROM discounts), 1), false);
 
