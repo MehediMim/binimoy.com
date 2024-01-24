@@ -7,16 +7,16 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE SEQUENCE users_user_id_seq START 1;
 -- Create the users table with hashed passwords
 CREATE TABLE users (
-    user_id INT DEFAULT nextval('users_user_id_seq') UNIQUE PRIMARY KEY,
+    user_id INT DEFAULT nextval('users_user_id_seq') PRIMARY KEY,  //
     first_name VARCHAR(100) NOT NULL,
     middle_name VARCHAR(100),
     last_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(30) UNIQUE,   
     email VARCHAR(255) UNIQUE,
     password_hash VARCHAR(255),
-     CHECK ((phone_number IS NOT NULL AND email IS NULL) OR (phone_number IS NULL AND email IS NOT NULL))
+     CHECK phone_number IS NOT NULL OR email IS NOT NULL
 );
-
+ 
 -- Set the sequence to the next available value
 SELECT setval('users_user_id_seq', COALESCE((SELECT MAX(user_id) FROM users), 1), false);
 
@@ -26,9 +26,7 @@ SELECT setval('users_user_id_seq', COALESCE((SELECT MAX(user_id) FROM users), 1)
 CREATE TABLE user_phone_number (
     user_id INT UNIQUE NOT NULL,
     phone_number VARCHAR(30) UNIQUE,
-    PRIMARY KEY (user_id, phone_number),
-    FOREIGN KEY (user_id ) REFERENCES users(user_id),
-    FOREIGN KEY (phone_number) REFERENCES users(phone_number) 
+    PRIMARY KEY (user_id)
     --not sure though
 );
 
@@ -65,7 +63,7 @@ CREATE TABLE categories (
 CREATE TABLE subcategories (
     subcategory_id INT NOT NULL,
     category_id INT PRIMARY KEY,
-    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    FOREIGN KEY (category_id) REFERENCES categories(category_id) //
 );
 
 --for discount
@@ -74,7 +72,7 @@ CREATE TABLE discounts (
     discount_id INT DEFAULT nextval('discounts_discount_id_seq') PRIMARY KEY,
     discount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    duration INT NOT NULL CHECK (duration >= 0)
+    duration INT NOT NULL CHECK (duration >= 0)            //
 );
 SELECT setval('discounts_discount_id_seq', COALESCE((SELECT MAX(discount_id) FROM discounts), 1), false);
 
@@ -92,7 +90,7 @@ CREATE TABLE item_discounts (
 CREATE TABLE messages(
     user_id_sender INT NOT NULL,
     user_id_receiver INT NOT NULL,
-    message_history TEXT ,
+    message TEXT ,            //
     message_date TIMESTAMP WITH TIME ZONE  DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id_sender, user_id_receiver),
     FOREIGN KEY (user_id_receiver) REFERENCES users(user_id),
@@ -127,20 +125,19 @@ CREATE TABLE reviews(
 -- Orders Table
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id),
-    total_price DECIMAL(10) NOT NULL CHECK (total_price > 0),
+    user_id INT REFERENCES users(user_id),                 
+    total_price DECIMAL(10) NOT NULL CHECK (total_price >= 0),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(50),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE order_details (
-    order_id INT NOT NULL REFERENCES orders(order_id),
+    order_id INT NOT NULL,
     item_id INT NOT NULL REFERENCES items(item_id),
-    quantity INT NOT NULL CHECK (quantity > 0),
-    price DECIMAL(10,0) NOT NULL CHECK (price > 0),
-    PRIMARY KEY (order_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    quantity INT NOT NULL CHECK (quantity >= 0),
+    price DECIMAL(10,0) NOT NULL CHECK (price >= 0),
+   PRIMARY KEY(order_id)
 );
 
 CREATE TABLE shipping_info (
@@ -157,7 +154,6 @@ CREATE TABLE shipping_info (
 
 CREATE TABLE payments (
     order_id INT UNIQUE REFERENCES orders(order_id),
-    user_id INT REFERENCES users(user_id),
     amount DECIMAL(10, 0) NOT NULL CHECK (amount > 0),
     payment_method VARCHAR(255),
     PRIMARY KEY (order_id,user_id),
