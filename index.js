@@ -16,12 +16,12 @@ app.use(express.json());
 app.post('/users', async (req, res) => {
   try {
     // Get the user data from the request body
-    const { first_name, middle_name, last_name, phone_number, password } = req.body;
-    const Query = "INSERT INTO users(first_name, middle_name, last_name, phone_number, password_hash) \
-     VALUES ($1,$2,$3,$4,crypt($5,gen_salt('bf')))";
+    const { first_name, middle_name, last_name, phone_number,email, password } = req.body;
+    const Query = "INSERT INTO users(first_name, middle_name, last_name, phone_number,email, password_hash) \
+     VALUES ($1,$2,$3,$4,$5,crypt($6,gen_salt('bf')))";
       
     // Execute the query with the user data as parameters
-     const newUser=await pool.query(Query, [first_name, middle_name, last_name, phone_number, password]);
+     const newUser=await pool.query(Query, [first_name, middle_name, last_name, phone_number,email, password]);
 
      res.json(newUser.rows[0]);
   } catch (error) {
@@ -40,7 +40,7 @@ try {
    WHERE (phone_number=$1 OR user_id ::VARCHAR=$1)   AND  password_hash=crypt($2,password_hash)";   //user_id or phone  number jekono ekta dilei hobee
                                            //emn korte chassilam kintu query partesina
    const oldUser=await pool.query(Query,[identity,password]);
-   if(oldUser.rowCount>0) res.send("login successful");
+   if(oldUser.rows[0].count>0) console.log("Login successful");
    else{
       res.send("Login denied , please try again with correct credentials");
     }
