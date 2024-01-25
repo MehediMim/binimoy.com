@@ -1,0 +1,77 @@
+/* Style for the containing div */
+.cont{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.div-container {
+    margin: 10px;
+    background-color: #151515;
+    color: white;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+}
+.navbar-brand{
+    margin-left: 3%;
+    margin-right: 10%;
+}
+
+/* Ensures text color is white for all text within the navbar */
+.navbar {
+    color: white !important;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-size: larger;
+    font-weight: 200;
+}
+
+/* Ensures links within the navbar are also white */
+.navbar a:hover, .navbar a:focus {
+    color: #BBDBB4!important;
+}
+.navbar a{
+    color: white !important;
+}
+
+/* Style for the search input field */
+.navbar .form-control {
+    color: black; /* Usually, the input text is kept black or a dark color for contrast */
+    background-color: rgb(255, 255, 255); /* Ensures the background of the input is white or a light color */
+}
+
+/* Style for the search button */
+.navbar .btn-outline-success {
+    color: white;
+    border-color: white;
+}
+
+/* Ensure the SVG icon for the navbar toggler is styled correctly if needed */
+.navbar .navbar-toggler-icon {
+    /* Insert style for navbar-toggler-icon if needed */
+}
+
+/* Style for the search input field to set its width to 400px */
+.form-control {
+    width: 100%; /* Set the width to 400px */
+}
+
+/* Other styles remain the same */
+/* .form-control {
+    max-width: 800px; /* Maximum width is set to 400px */
+    /* width: 100%; It takes up 100% of the parent element's width */
+
+
+
+.collapse {
+    margin-left: 50%;
+}
+#signup{
+    border-radius: 5%;
+    border-left: 10px;
+    margin-left: 15px;
+    
+    
+}
+
+
+.nav-link{
+    /* padding: 30%; */
+}
