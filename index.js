@@ -2,58 +2,21 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const pool =require("./db");
-const { Query } = require("pg");
-
 
 //middleware
 app.use(cors());
 app.use(express.json());
 
 
-//Routes
-
-//create a user
-app.post('/users', async (req, res) => {
-  try {
-    // Get the user data from the request body
-    const { first_name, middle_name, last_name, phone_number,email, password } = req.body;
-    const Query = "INSERT INTO users(first_name, middle_name, last_name, phone_number,email, password_hash) \
-     VALUES ($1,$2,$3,$4,$5,crypt($6,gen_salt('bf')))";
-      
-    // Execute the query with the user data as parameters
-     const newUser=await pool.query(Query, [first_name, middle_name, last_name, phone_number,email, password]);
-
-     res.json(newUser.rows[0]);
-  } catch (error) {
-    console.log(error.message);
-    // Send an error response to the client
-    res.status(500).send('Something went wrong');
-  }
-});
-
-//get a user
-app.get('/users',async(req,res)=>{
-try {
-  const {identity,password}=req.body;
-   const Query="SELECT COUNT(user_id) \
-   FROM users \
-   WHERE (phone_number=$1 OR user_id ::VARCHAR=$1)   AND  password_hash=crypt($2,password_hash)";   //user_id or phone  number jekono ekta dilei hobee
-                                           //emn korte chassilam kintu query partesina
-   const oldUser=await pool.query(Query,[identity,password]);
-   if(oldUser.rows[0].count>0) console.log("Login successful");
-   else{
-      res.send("Login denied , please try again with correct credentials");
-    }
-
-} catch (error) {
-
-  console.log(error.message);
-  res.status(500).send('Something went wrong');
-}
-
-});
-
-//update a user
+//create a user or sign in 
+const signInRoutes = require("./signIn");
+app.use(signInRoutes);
+//login
+const logInRoutes = require("./logIn");
+app.use(logInRoutes);
+//add users phone number
+const addPhoneNumberRoutes = require("./addPhoneNumber");
+app.use(addPhoneNumberRoutes);
 //updates can be his name , picture or password-ekhon kar jonye dhoree ney name update korbe
 app.put('/users',async(req,res)=>{
   try {

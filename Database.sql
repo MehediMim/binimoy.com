@@ -7,14 +7,14 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE SEQUENCE users_user_id_seq START 1;
 -- Create the users table with hashed passwords
 CREATE TABLE users (
-    user_id INT DEFAULT nextval('users_user_id_seq') PRIMARY KEY,  //
+    user_id INT DEFAULT nextval('users_user_id_seq') PRIMARY KEY,  
     first_name VARCHAR(100) NOT NULL,
     middle_name VARCHAR(100),
     last_name VARCHAR(100) NOT NULL,
     phone_number VARCHAR(30) UNIQUE,   
     email VARCHAR(255) UNIQUE,
     password_hash VARCHAR(255),
-     CHECK phone_number IS NOT NULL OR email IS NOT NULL
+     CHECK (phone_number IS NOT NULL OR email IS NOT NULL)
 );
  
 -- Set the sequence to the next available value
@@ -24,9 +24,9 @@ SELECT setval('users_user_id_seq', COALESCE((SELECT MAX(user_id) FROM users), 1)
 --phone number is a multivalued attribute so another table was needed to maintain the first normal form
 -- Table for User Phone Numbers
 CREATE TABLE user_phone_number (
-    user_id INT UNIQUE NOT NULL,
+    user_id INT NOT NULL,
     phone_number VARCHAR(30) UNIQUE,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (user_id,phone_number)
     --not sure though
 );
 
@@ -62,8 +62,18 @@ CREATE TABLE categories (
 
 CREATE TABLE subcategories (
     subcategory_id INT NOT NULL,
-    category_id INT PRIMARY KEY,
-    FOREIGN KEY (category_id) REFERENCES categories(category_id) //
+    category_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    PRIMARY KEY (category_id, subcategory_id),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+CREATE TABLE images (
+    image_id SERIAL,
+    item_id INT NOT NULL,
+    image_url TEXT NOT NULL,
+    PRIMARY KEY (image_id, item_id),
+    FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
 
 --for discount
