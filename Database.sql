@@ -40,7 +40,7 @@ CREATE TABLE items (
     subcategory_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-  --  image BLOB,  --it has to be made correct
+    image TEXT ,
     price DECIMAL(10, 0) NOT NULL CHECK (price >= 0),
     status VARCHAR(50),
     date_Posted TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
